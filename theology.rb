@@ -6,32 +6,40 @@ def experiment(description)
   e
 end
 
-class PrintReporter
-  def report
-    puts "PrintReporter reporting for duty"
-  end
-end
-
 class Experiment
   @@available_reporters = {
-    "print reporter" => PrintReporter.new
+    "print reporter" => lambda { puts "reporting for duty" }
+  }
+
+  @@available_tactics = {
+    "create /tmp/experiment" => lambda { puts "creating /tmp/experiment" },
+    "delete /tmp/experiment" => lambda { puts "deleting /tmp/experiment" }
+  }
+
+  @@available_objectives = {
+    "create a file" => lambda { puts "define: create a file" },
+    "delete a file" => lambda { puts "define: delete a file" }
   }
 
   def initialize(description)
     @description = description
     @reporters = Set.new
+    @tactics = Set.new
+    @objectives = Set.new
   end
 
   def run
-    @reporters.each(&:report)
+    @objectives.each(&:call)
+    @tactics.each(&:call)
+    @reporters.each(&:call)
   end
 
   def objectives(*names)
-
+    names.each {|n| @objectives.add @@available_objectives.fetch(n) }
   end
 
   def tactics(*names)
-
+    names.each {|n| @tactics.add @@available_tactics.fetch(n) }
   end
 
   def reporters(*names)
