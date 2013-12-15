@@ -6,9 +6,17 @@ def experiment(description)
   e
 end
 
+class StringReporter
+  def self.report(experiment, objectives, tactics)
+    puts "*** Experiment status report: #{experiment.description} ***"
+  end
+end
+
 class Experiment
+  attr_reader :description
+
   @@available_reporters = {
-    "print reporter" => lambda { puts "reporting for duty" }
+    "print reporter" => StringReporter
   }
 
   @@available_tactics = {
@@ -31,7 +39,7 @@ class Experiment
   def run
     @objectives.each(&:call)
     @tactics.each(&:call)
-    @reporters.each(&:call)
+    @reporters.each {|r| r.report(self, @objectives, @tactics) }
   end
 
   def objectives(*names)
